@@ -13,7 +13,7 @@ from numpy import linspace, mean
 from scikits.audiolab import wavread
 import sys
 
-__author__ = 's3c0nDD'
+__author__ = 'inf106637'
 
 
 # GLOBAL CONST HERE:
