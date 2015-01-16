@@ -47,12 +47,6 @@ def load_all_files(_path):
     return __samples, __counters
     print "=> All files loaded succesfully!..."
     print "============================================="
-    # print str(len(data)) + " __samples"
-    # samplerate = data[0].split()[3]
-    # print samplerate + "Hz"
-    # # else: => " + str(1 / float(samplerate)) + " seconds per sample"
-    # print str(len(data) / float(samplerate)) + "s"
-    # lengthins = len(data) / float(samplerate)
 
 
 # tries to recognize gender from sample wav file
@@ -129,7 +123,7 @@ def make_plots(_samples):
 
         n = len(sample['signal'])
 
-        signal = sample['signal'][0:n]             # funkcja spróbkowana
+        signal = sample['signal'][0:n]
 
         print "=> counting 'fft method' on samples..."
         signal_ = fft(signal)
