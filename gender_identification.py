@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: cp1250 -*-
 
-
 from __future__ import division
 from os import listdir
 from os.path import isfile, join, splitext
@@ -10,18 +9,27 @@ from scipy import fft
 from scipy.io.wavfile import read
 from pylab import plot, xlabel, ylabel, savefig
 from numpy import linspace, mean
-from scikits.audiolab import wavread
+from scikits.audiolab import wavread #, f
 import sys
 
-__author__ = 's3c0nDD'
+
+__author__ = 'inf106637'
+
+# ==============================================================
+# GLOBAL CONSTs HERE:
+
+samplingRate = 44100    # fixed sampling rate of files
+
+mypath = "train"        # path to wav files in the project folder (if we want to use
+                        # more "sophisticated" version of this project, which doesnt
+                        # require another script up on this script to count %-tage of
+                        # success rate of dummy algorithm of recognizing sex recorded
+
+# ==============================================================
+# PROCEDUREs and FUNCTIONs HERE:
 
 
-# GLOBAL CONST HERE:
-samplingRate = 44100    # as name of var
-mypath = "train"        # path to wav files in the project folder
-
-
-# list with all files in the directory described above
+# return lists [__samples, __counters]) made from all files from the function arg. '_path'
 def load_all_files(_path):
     print "\n============================================="
     print "=> Trying to load all 'wav' files..."
@@ -33,7 +41,7 @@ def load_all_files(_path):
     female_filecount = 0
     for f in all_files:
         p = _path + "/" + f
-        sys.stdout.write('... ' + f)
+        sys.stdout.write('... ' + f)  # print ... NAZWA_PLIKU
         data, rate, encoding = wavread(p)
         sig = [mean(d) for d in data]
         __samples.append({'name': f, 'gender': f[-5:-4], 'signal': sig, 'sample_rate': rate})
@@ -49,9 +57,9 @@ def load_all_files(_path):
     print "============================================="
 
 
-# tries to recognize gender from sample wav file
+# tries to recognize gender from '_sample' wav file
 def recognize_gender(_sample):
-    print "\n=> Trying to recognize gender from sample: ", _sample
+    # print "\n=> Trying to recognize gender from sample: ", _sample
     t = 3
     w = _sample['sample_rate']
     n = w * t
@@ -78,8 +86,8 @@ def recognize_gender(_sample):
         return 'K'
 
 
-# all procedures doing the %-tage counting and printing on STDOUT
-def do_algo(_samples, counters):
+# procedure doing the %-tage succes rate counting and printing results on STDOUT
+def do_algo(_samples, _counters):
     # few "global method" vars...
     shot_males = 0
     shot_females = 0
@@ -98,21 +106,22 @@ def do_algo(_samples, counters):
             if gender == "K":
                 shot_females += 1
             else:
-                print "\n=> algorithm returned = ", sample['name']
+                print "not male, not female, crazy as **** !"
+            print "\n=> algorithm returned = ", sample['name']
 
             print "...", sample['name'], "...correct!"
-        else:
+        elif gender != sample['gender']:
             print "...", sample['name'], "... not good, sry :<"
 
-    all_count = counters['male_count'] + counters['female_count']
+    all_count = _counters['male_count'] + _counters['female_count']
     print "\n=> Stats:"
-    print "good shots for males: ", shot_males, "/", counters['male_count']
-    print "good shots for females: ", shot_females, "/", counters['female_count']
+    print "good shots for males: ", shot_males, "/", _counters['male_count']
+    print "good shots for females: ", shot_females, "/", _counters['female_count']
     print "together: ", shot_correct, "/", all_count, " (", shot_correct / all_count * 100, "%)"
     print "============================================="
 
 
-# make plots from given samples - NOT USED IN PROGRAMME
+# make plots from given samples
 def make_plots(_samples):
     print "\n============================================="
     print "=> starting all the plotting..."
@@ -142,9 +151,32 @@ def make_plots(_samples):
     print "============================================="
 
 
+# load only ONE FILE from given _name (as specyfication says - do less, be lazy)
+def load_one_file_and_do_algo_on_it(_filepath):
+    samples = []
+    data, rate, encoding = wavread(_filepath)  # czytaj plik do zmiennych
+    sig = [mean(d) for d in data]
+    f = _filepath
+    samples.append({'name': f, 'gender': f[-5:-4], 'signal': sig, 'sample_rate': rate})
+    gender = recognize_gender(samples.pop(0))  # call for another of MY functions, one ABOVE^
+    return gender
 
-# MAIN FUNCTION OF PROGRAMME
+
+# MAIN FUNCTION OF THIS SCRIPT
 if __name__ == '__main__':
-    samples, counters = load_all_files(mypath)  # wczytanie plikow
-    print counters                              # print wyniki
-    do_algo(samples, counters)                  # poka wykresy
+    # ==============================================================
+    # CHOOSE ONE OF VERSIONS - 1) more function   2) acurate with specs given by Mr W.J.
+    # ==============================================================
+    #  1)  normally working here:
+    # samples, counters = load_all_files(mypath)  # wczytanie plikow z folderu "mypath"
+    # print counters                              # print wyniki
+    # do_algo(samples, counters)                  # poka wykresy
+
+    # ==============================================================
+    #  2)  code for Mr.W.Jaœkowski. - exactly as specyfication says!
+	#  https://docs.google.com/document/d/1bjromoRgWAb9GnLxfXa8Jhc5WavO7fhsa7RQQcxi_R0/pub
+    if isfile(sys.argv[1]):
+		what_gender_file_is = load_one_file_and_do_algo_on_it(str(sys.argv[1]))
+        print what_gender_file_is
+    else:
+        print "Invalid argument, should be the name of file for which we want to guess sex!"
